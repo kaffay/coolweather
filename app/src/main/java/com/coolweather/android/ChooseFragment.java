@@ -81,10 +81,17 @@ public class ChooseFragment extends Fragment {
                     queryCountries();
                 } else if (currentLevel == LEVEL_COUNTRY) {
                     String weatherId = countryList.get(position).getWeatherId();
-                    Intent i = new Intent(getActivity(), WeatherActivity.class);
-                    i.putExtra("weather_id", weatherId);
-                    startActivity(i);
-                    getActivity().finish();
+                    if (getActivity() instanceof MainActivity) {
+                        Intent i = new Intent(getActivity(), WeatherActivity.class);
+                        i.putExtra("weather_id", weatherId);
+                        startActivity(i);
+                        getActivity().finish();
+                    } else if (getActivity() instanceof WeatherActivity) {
+                        WeatherActivity activity = (WeatherActivity)getActivity();
+                        activity.drawerLayout.closeDrawers();
+                        activity.swipeRefresh.setRefreshing(true);
+                        activity.requestWeather(weatherId);
+                    }
                 }
             }
         });
@@ -163,7 +170,7 @@ public class ChooseFragment extends Fragment {
     }
 
     private void queryProvinces() {
-        titleText.setText("China");
+        titleText.setText(getString(R.string.china));
         backButton.setVisibility(View.GONE);
         provinceList = DataSupport.findAll(Province.class);
         if (provinceList.size() > 0) {
